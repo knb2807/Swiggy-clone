@@ -94,7 +94,7 @@ pipeline {
             steps {
                 sh """
                     docker rm -f cloneswiggy || true
-                    docker run -d --name cloneswiggy -p 3001:3001 ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    docker run -d --name cloneswiggy -p 3000:3000 ${DOCKER_IMAGE}:${DOCKER_TAG}
                 """
             }
         }
