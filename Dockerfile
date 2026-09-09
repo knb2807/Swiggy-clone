@@ -1,23 +1,35 @@
-# Using Node.js 16 as the base image
-FROM node:16
+# =========================================================
+# Stage 1: Build & Dependency Installation
+# =========================================================
+FROM node:20-alpine AS builder
 
-# Setting up the working directory
 WORKDIR /app
 
-# Copying the package.json and package-lock.json files to the working directory
-COPY package*.json ./
+# Copy ONLY package files first to maximize Docker layer caching
+COPY package.json package-lock.json ./
 
-# Installation of npm dependency
-RUN npm install
+# Clean install all dependencies (much faster in CI pipelines)
+RUN npm ci
 
-# Copy the application code
+# Copy the rest of the application source code
 COPY . .
 
-# Buildinf of the React app
-RUN npm run build
+# =========================================================
+# Stage 2: Tiny Production Runtime Environment
+# =========================================================
+FROM node:20-alpine AS runner
 
-# Expose port 3000 to access app
+WORKDIR /app
+
+# Set production environment flags
+ENV NODE_ENV=production
+
+# Copy only the compiled/installed code from the builder stage
+COPY --from=builder /app ./
+
+# Expose the correct application port
 EXPOSE 3000
 
-# Start your Node.js server
+# Start the application
 CMD ["npm", "start"]
+
