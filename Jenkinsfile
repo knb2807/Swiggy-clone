@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        DOCKER_IMAGE = 'cloneswiggy'
+        DOCKER_IMAGE = 'mrknb/cloneswiggy'
         DOCKER_TAG   = 'latest'
     }
 
