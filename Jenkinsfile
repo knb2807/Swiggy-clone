@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'SonarQubeServer'
+        SCANNER_HOME = tool 'sonar-scanner'
         DOCKER_IMAGE = 'Clone/swiggy'
         DOCKER_TAG   = 'latest'
     }
@@ -28,9 +28,9 @@ pipeline {
 
         stage('SonarQube Code Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('sonar-scanner') {
                     sh """
-                        $SCANNER_HOME/bin/SonarQubeServer \
+                        $SCANNER_HOME/bin/sonar-scanner \
                           -Dsonar.projectKey=Swiggy \
                           -Dsonar.projectName=Swiggy \
                           -Dsonar.sources=.
