@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        DOCKER_IMAGE = 'Clone/swiggy'
+        DOCKER_IMAGE = 'Cloneswiggy'
         DOCKER_TAG   = 'latest'
     }
 
@@ -30,9 +30,9 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar-scanner') {
                     sh """
-                        $SCANNER_HOME/bin/sonar-scanner \
-                          -Dsonar.projectKey=Swiggy \
-                          -Dsonar.projectName=Swiggy \
+                        \$SCANNER_HOME/bin/sonar-scanner \\
+                          -Dsonar.projectKey=Swiggy \\
+                          -Dsonar.projectName=Swiggy \\
                           -Dsonar.sources=.
                     """
                 }
@@ -65,10 +65,18 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-hub-credentials') {
+                    // This safely binds your Jenkins credentials to environment variables
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh """
+                            # Log into DockerHub securely without using the Docker tool plugin
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            
+                            # Build and push your Swiggy Clone image
                             docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                             docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                            
+                            # Always logout at the end to keep the build agent clean
+                            docker logout
                         """
                     }
                 }
@@ -104,3 +112,4 @@ pipeline {
         }
     }
 }
+
